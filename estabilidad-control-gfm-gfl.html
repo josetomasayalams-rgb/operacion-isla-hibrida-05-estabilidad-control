@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Modelo reducido de estabilidad de frecuencia y reparto droop entre dos unidades GFM.">
+  <title>Estabilidad y control GFM · Academia de operación en isla</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="site-shell">
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">Módulo 05 · Estabilidad y control</p>
+        <h1>La frecuencia reparte el desequilibrio</h1>
+        <p class="lede">Dos GFM pueden compartir un escalón sin comunicaciones mediante droop. La inercia modifica la velocidad de la caída; las pendientes y el headroom determinan cuánto aporta cada unidad y dónde se estabiliza la frecuencia.</p>
+      </div>
+      <div class="header-meta"><strong>Modelo agregado <span class="evidence-tag">E</span></strong>Droop primario;<br>no representa controles OEM</div>
+    </header>
+
+    <section class="control-panel" aria-labelledby="stability-controls">
+      <h2 id="stability-controls" class="sr-only">Parámetros de estabilidad</h2>
+      <div class="control-row">
+        <div class="field"><label for="stability-step"><span>Escalón de carga</span><output id="stability-step-value" for="stability-step">25 %</output></label><input id="stability-step" type="range" min="5" max="70" step="5" value="25"></div>
+        <div class="field"><label for="droop-a"><span>Droop unidad A</span><output id="droop-a-value" for="droop-a">5,0 %</output></label><input id="droop-a" type="range" min="2" max="10" step="0.5" value="5"></div>
+        <div class="field"><label for="droop-b"><span>Droop unidad B</span><output id="droop-b-value" for="droop-b">5,0 %</output></label><input id="droop-b" type="range" min="2" max="10" step="0.5" value="5"></div>
+        <div class="field"><label for="stability-inertia"><span>Inercia agregada H</span><output id="stability-inertia-value" for="stability-inertia">3,0 s</output></label><input id="stability-inertia" type="range" min="0.5" max="8" step="0.5" value="3"></div>
+        <div class="field"><label for="unit-headroom"><span>Headroom por unidad</span><output id="unit-headroom-value" for="unit-headroom">35 %</output></label><input id="unit-headroom" type="range" min="5" max="50" step="5" value="35"></div>
+        <label class="check-field" for="unit-b-available"><input id="unit-b-available" type="checkbox" checked> Unidad B disponible</label>
+        <button class="btn btn-primary" id="simulate-stability" type="button">Simular reparto</button>
+      </div>
+    </section>
+
+    <section class="metric-row" aria-label="Resultados de estabilidad">
+      <div class="metric"><span class="metric-label">Nadir de frecuencia</span><strong class="metric-value" id="stability-nadir">49,58 Hz</strong></div>
+      <div class="metric"><span class="metric-label">Frecuencia final</span><strong class="metric-value" id="stability-final">49,70 Hz</strong></div>
+      <div class="metric"><span class="metric-label">Reparto A / B</span><strong class="metric-value" id="stability-sharing">50 / 50 %</strong></div>
+    </section>
+
+    <figure class="visual-stage" aria-labelledby="stability-caption" data-model-class="reduced-order" data-evidence-type="E">
+      <svg id="stability-svg" viewBox="0 0 900 520" role="img" aria-labelledby="stability-title stability-desc">
+        <title id="stability-title">Frecuencia y reparto de potencia entre dos unidades GFM</title>
+        <desc id="stability-desc">Dos gráficos alineados muestran la frecuencia de la isla y el aporte incremental de las unidades A y B durante ocho segundos.</desc>
+        <line class="grid-line" x1="74" y1="48" x2="850" y2="48"></line>
+        <line class="grid-line" x1="74" y1="222" x2="850" y2="222"></line>
+        <line class="grid-line" x1="74" y1="292" x2="850" y2="292"></line>
+        <line class="grid-line" x1="74" y1="466" x2="850" y2="466"></line>
+        <line class="event-line" x1="171" y1="35" x2="171" y2="470"></line>
+        <text class="axis-label" x="74" y="28">Frecuencia de isla (Hz)</text>
+        <text class="axis-label" x="74" y="274">Potencia incremental (pu base sistema)</text>
+        <text class="axis-label" x="152" y="496">evento</text>
+        <text class="axis-label" x="74" y="500">0 s</text>
+        <text class="axis-label" x="828" y="500">8 s</text>
+        <path id="stability-frequency-path" class="series-frequency" d=""></path>
+        <path id="power-a-path" class="series-secondary" d=""></path>
+        <path id="power-b-path" class="series-tertiary" d=""></path>
+        <text id="frequency-result-label" class="plot-label" x="690" y="80">49,7 Hz final</text>
+        <text id="power-a-label" class="plot-label" x="690" y="330">Unidad A</text>
+        <text id="power-b-label" class="plot-label" x="690" y="360">Unidad B</text>
+      </svg>
+      <figcaption id="stability-caption" class="legend">
+        <span><span class="swatch swatch-frequency"></span>frecuencia</span>
+        <span><span class="swatch" style="background:var(--series-3)"></span>potencia A</span>
+        <span><span class="swatch" style="background:var(--series-4)"></span>potencia B</span>
+      </figcaption>
+      <p class="status-line" id="stability-status" aria-live="polite"><strong>Lectura:</strong> ambas unidades comparten el escalón dentro de su headroom.</p>
+    </figure>
+
+    <div class="content-grid">
+      <section><h2>Inercia</h2><p><span class="evidence-tag">E</span> Aumentar H reduce inicialmente el RoCoF del modelo. No aumenta por sí mismo la energía ni la reserva activa disponible.</p></section>
+      <section><h2>Droop</h2><p><span class="evidence-tag">R</span> Una pendiente menor produce una respuesta primaria más agresiva. El reparto depende también de bases, filtros, límites y mediciones reales.</p></section>
+      <section><h2>Saturación</h2><p><span class="evidence-tag">P</span> Cuando una unidad agota headroom o corriente, deja de seguir la curva ideal. La recuperación y prioridad P/Q requieren modelo OEM y EMT.</p></section>
+    </div>
+
+    <details>
+      <summary>Modelo, ecuaciones y fuentes</summary>
+      <code class="equation">2H · d(Δfpu)/dt = −ΔPload + ΔPA + ΔPB − D · Δfpu</code>
+      <code class="equation">ΔPi,target = min(headroomi, −Δfpu / Ri · ratingi)</code>
+      <p>Cada respuesta de potencia usa un primer orden de 120 ms. Las unidades tienen igual rating en el ejemplo. No se modelan Q–V, impedancia virtual, red, PLL, corriente, retardos, SOC ni lazos secundarios.</p>
+      <ul>
+        <li><a href="../../Markdown/01_Fundamentos_GFM_GFL_y_Microredes/2023_NERC_Grid_Forming_Functional_Specifications_for_BPS_Connected_BESS.md">NERC 2023 — pruebas de reparto y respuesta droop</a>.</li>
+        <li><a href="../../Markdown/01_Fundamentos_GFM_GFL_y_Microredes/10)%20Review%20on%20grid-forming%20converter%20control%20methods%20in%20high-proportion%20renewable%20energy%20power%20systems.md">Revisión de droop, PSC, VSM y otros controles GFM</a>.</li>
+        <li><a href="../../Plan_Investigacion_Microrredes_Hibridas_Modo_Isla.md">Plan maestro, Frente 2 — control y estabilidad</a>.</li>
+      </ul>
+    </details>
+
+    <nav class="page-nav" aria-label="Navegación entre módulos">
+      <a class="btn" href="dimensionamiento-bess.html">← Dimensionamiento BESS</a>
+      <a class="btn btn-primary" href="balance-ernc-soc.html">Balance ERNC–BESS →</a>
+    </nav>
+  </main>
+  <script src="shared.js"></script>
+  <script src="estabilidad.js"></script>
+</body>
+</html>
